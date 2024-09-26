@@ -2,3 +2,5 @@
 /.venv
 /stylegan2-ada-pytorch
 /models/*
+__pycache__/split_dataset.cpython-310.pyc
+__pycache__/train_model.cpython-310.pyc

@@ -17,11 +17,9 @@ def create_dataset(path_home, path_images, path_dataset):
     # Build the command for creating the dataset
     cmd = f"python {path_home}/stylegan2-ada-pytorch/dataset_tool.py --source {path_images} --dest {path_dataset}"
     
-    # Print the command (for debugging)
     print(f"Creating dataset with command: {cmd}")
     
     try:
-        # Run the command using subprocess
         subprocess.run(cmd, shell=True, check=True)
         
     except subprocess.CalledProcessError as e:
@@ -46,27 +44,14 @@ def run_stylegan_training(path_home, path_exp, path_dataset, snap=10):
     cmd = f"python {path_home}/stylegan2-ada-pytorch/train.py "\
           f"--snap {snap} --cond=1 --outdir {path_exp} --data {path_dataset}"
     
-    # Print the command (for debugging)
     print(f"Running command: {cmd}")
     
-    # try:
-    #     # Run the command using subprocess
-    #     subprocess.run(cmd, shell=True, check=True)
+    try:
+        subprocess.run(cmd, shell=True, check=True)
         
-    # except subprocess.CalledProcessError as e:
-    #     print(f"Error while running the command: {e}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error while running the command: {e}")
         
-
-# Example usage:
-# Assuming you have set up the required paths:
-# path_dataset = "/home/user/dataset"
-# path_exp = "/home/user/experiments"
-# path_home = "/home/user/stylegan2-ada-pytorch"
-
-# run_stylegan_training(path_dataset, path_exp, path_home, snap=10)
-
-
-
 
 def resume_stylegan_training(path_dataset, path_exp, path_home, network_snapshot, experiment_folder, snap=10):
     """
@@ -91,22 +76,48 @@ def resume_stylegan_training(path_dataset, path_exp, path_home, network_snapshot
     cmd = f"python {path_home}/stylegan2-ada-pytorch/train.py "\
           f"--snap {snap} --resume {resume_path} --outdir {path_exp} --data {path_dataset}"
     
-    # Print the command (for debugging)
     print(f"Running command: {cmd}")
     
-    # try:
-    #     # Run the command using subprocess
-    #     subprocess.run(cmd, shell=True, check=True)
+    try:
+        subprocess.run(cmd, shell=True, check=True)
         
-    # except subprocess.CalledProcessError as e:
-    #     print(f"Error while running the command: {e}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error while running the command: {e}")
 
-# Example usage:
-# Assuming you have set up the required paths and values:
-# path_dataset = "/path/to/dataset"
-# path_exp = "/path/to/experiments"
-# path_home = "/path/to/stylegan2-ada-pytorch"
-# network_snapshot = "network-snapshot-000100.pkl"
-# experiment_folder = "00008-circuit-auto1-resumecustom"
 
-# resume_stylegan_training(path_dataset, path_exp, path_home, network_snapshot, experiment_folder, snap=10)
+
+def generate_stylegan_images(path_home, path_model, path_out, seeds_num):
+    """
+    Function to generate images using the StyleGAN2-ADA model for the CIFAR-10 dataset.
+
+    Parameters:
+    - path_home: Path to the home directory where the stylegan2-ada-pytorch repo is located
+    - path_out: Path to the output directory
+    - seeds_num: Range of seeds to use for image generation (e.g., "0-35")
+    - classes: Classes to generate images for (e.g., "0-9" for all classes)
+
+    Returns:
+    - None
+    """
+    
+
+    for class_num in range(10):
+        class_num = int(class_num)
+        class_out_dir = os.path.join(path_out, f"class_{class_num}")
+        os.makedirs(class_out_dir, exist_ok=True)
+
+        # Build the command for generating images with StyleGAN2-ADA
+        cmd = f"python {path_home}/stylegan2-ada-pytorch/generate.py " \
+              f"--outdir={class_out_dir} --seeds={seeds_num} --class={class_num} " \
+              f"--network={path_model}"
+
+        print(f"Running command: {cmd}")
+
+        try:
+            subprocess.run(cmd, shell=True, check=True)
+            print(f"Images for class {class_num} generated successfully in {class_out_dir}")
+        except subprocess.CalledProcessError as e:
+            print(f"Error while generating images for class {class_num}: {e}")
+
+
+
