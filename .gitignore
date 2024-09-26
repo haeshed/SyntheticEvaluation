@@ -1,3 +1,4 @@
 /data
 /.venv
 /stylegan2-ada-pytorch
+/models/*

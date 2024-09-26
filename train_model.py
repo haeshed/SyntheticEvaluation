@@ -49,12 +49,12 @@ def run_stylegan_training(path_home, path_exp, path_dataset, snap=10):
     # Print the command (for debugging)
     print(f"Running command: {cmd}")
     
-    try:
-        # Run the command using subprocess
-        subprocess.run(cmd, shell=True, check=True)
+    # try:
+    #     # Run the command using subprocess
+    #     subprocess.run(cmd, shell=True, check=True)
         
-    except subprocess.CalledProcessError as e:
-        print(f"Error while running the command: {e}")
+    # except subprocess.CalledProcessError as e:
+    #     print(f"Error while running the command: {e}")
         
 
 # Example usage:
@@ -94,12 +94,12 @@ def resume_stylegan_training(path_dataset, path_exp, path_home, network_snapshot
     # Print the command (for debugging)
     print(f"Running command: {cmd}")
     
-    try:
-        # Run the command using subprocess
-        subprocess.run(cmd, shell=True, check=True)
+    # try:
+    #     # Run the command using subprocess
+    #     subprocess.run(cmd, shell=True, check=True)
         
-    except subprocess.CalledProcessError as e:
-        print(f"Error while running the command: {e}")
+    # except subprocess.CalledProcessError as e:
+    #     print(f"Error while running the command: {e}")
 
 # Example usage:
 # Assuming you have set up the required paths and values:
