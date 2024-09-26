@@ -4,27 +4,19 @@ from collections import Counter
 import random
 from tqdm import tqdm
 
-def load_json_data(json_file):
+def split_train_test(json_file, train_ratio, seed=None):
     """
-    Load data from a JSON file with the structure {'labels': [...]}
-    Returns a list of [file_path, label] pairs.
-    """
-    with open(json_file, 'r') as f:
-        data = json.load(f)
-    return data['labels']
-
-def create_dataframe(data):
-    """
-    Convert the data list to a pandas DataFrame with columns 'file_path' and 'label'.
-    """
-    df = pd.DataFrame(data, columns=['file_path', 'label'])
-    return df
-
-def split_data(df, train_ratio, seed=None):
-    """
-    Split the data into train and test sets based on the train_ratio.
+    Split the data from a JSON file into train and test sets based on the train_ratio.
     Returns train_df and test_df DataFrames.
     """
+    # Load data from JSON file
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+    labels = data['labels']
+
+    # Create DataFrame
+    df = pd.DataFrame(labels, columns=['file_path', 'label'])
+
     if seed:
         random.seed(seed)
 
@@ -44,11 +36,19 @@ def split_data(df, train_ratio, seed=None):
 
     return train_df, test_df
 
-def subset_data(df, subset_size, seed=None):
+def subset_data(json_file, subset_size, seed=None):
     """
-    Create a subset of the data with the specified size, ensuring an even distribution of classes.
+    Create a subset of the data from a JSON file with the specified size, ensuring an even distribution of classes.
     Returns a subset DataFrame.
     """
+    # Load data from JSON file
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+    labels = data['labels']
+
+    # Create DataFrame
+    df = pd.DataFrame(labels, columns=['file_path', 'label'])
+
     if seed:
         random.seed(seed)
 
@@ -80,45 +80,9 @@ def print_class_distribution(data_df, name):
     Print the class distribution in the provided DataFrame.
     """
     print(f"{name} data statistics:")
+    print(f"Total number of samples: {len(data_df)}")
     print(data_df['label'].value_counts().sort_index())
 
-def main(input_file, output_dir, train_ratio=0.8, subset_size=None, seed=42):
-    """
-    Main function to handle data splitting and subsetting.
-    """
-    print(f"Loading data from {input_file}")
-    data = load_json_data(input_file)
-    df = create_dataframe(data)
 
-    if subset_size is not None:
-        print(f"Subsetting data with size {subset_size} and seed {seed}")
-        subset_df = subset_data(df, subset_size, seed=seed)
-        output_file = f"{output_dir}/dataset_subset_size{subset_size}_seed{seed}.json"
-        print(f"Saving subset data to {output_file}")
-        save_data(subset_df, output_file)
-        print_class_distribution(subset_df, "Subset")
-    else:
-        print(f"Splitting data into train and test sets with train ratio {train_ratio} and seed {seed}")
-        train_df, test_df = split_data(df, train_ratio, seed=seed)
 
-        train_output_file = f"{output_dir}/train_data.json"
-        test_output_file = f"{output_dir}/test_data.json"
 
-        print(f"Saving train data to {train_output_file}")
-        save_data(train_df, train_output_file)
-
-        print(f"Saving test data to {test_output_file}")
-        save_data(test_df, test_output_file)
-
-        print_class_distribution(train_df, "Train")
-        print_class_distribution(test_df, "Test")
-
-# Example usage
-input_file = "/path/to/input.json"
-output_dir = "/path/to/output_dir"
-
-# For train/test split
-# main(input_file, output_dir, train_ratio=0.8, seed=42)
-
-# For subsetting
-main(input_file, output_dir, subset_size=4000, seed=42)
