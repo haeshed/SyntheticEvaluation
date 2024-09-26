@@ -1,21 +1,22 @@
-# train/test split
-
 import json
 import pandas as pd
 from collections import Counter
 import random
 from tqdm import tqdm
 
-def load_data(json_file):
+def split_train_test(json_file, train_ratio, seed=None):
+    """
+    Split the data from a JSON file into train and test sets based on the train_ratio.
+    Returns train_df and test_df DataFrames.
+    """
+    # Load data from JSON file
     with open(json_file, 'r') as f:
         data = json.load(f)
-    return data['labels']
+    labels = data['labels']
 
-def create_dataframe(data):
-    df = pd.DataFrame(data, columns=['file_path', 'label'])
-    return df
+    # Create DataFrame
+    df = pd.DataFrame(labels, columns=['file_path', 'label'])
 
-def split_data(df, train_ratio, seed=None):
     if seed:
         random.seed(seed)
 
@@ -35,65 +36,19 @@ def split_data(df, train_ratio, seed=None):
 
     return train_df, test_df
 
-def save_data(data_df, output_file):
-    data = {
-        "labels": data_df.values.tolist()
-    }
-    with open(output_file, 'w') as f:
-        json.dump(data, f, indent=4)
-
-# Example usage
-input_file = raw_data + "/dataset.json"
-# output_file = raw_data + "/dataset_subset.json"
-output_dir = raw_data
-
-# input_file = 'path/to/input.json'
-# output_dir = 'path/to/output_dir'
-train_ratio = 0.8  # 80% for train, 20% for test
-seed_value = 42
-
-print(f"Loading data from {input_file}")
-data = load_data(input_file)
-df = create_dataframe(data)
-
-print(f"Splitting data into train and test sets with train ratio {train_ratio} and seed {seed_value}")
-train_df, test_df = split_data(df, train_ratio, seed=seed_value)
-
-train_output_file = f"{output_dir}/train_data.json"
-test_output_file = f"{output_dir}/test_data.json"
-
-print(f"Saving train data to {train_output_file}")
-save_data(train_df, train_output_file)
-
-print(f"Saving test data to {test_output_file}")
-save_data(test_df, test_output_file)
-
-print("Train data statistics:")
-print(train_df['label'].value_counts().sort_index())
-
-print("Test data statistics:")
-print(test_df['label'].value_counts().sort_index())
-
-
-
-# Split into specific subset size
-
-import json
-import pandas as pd
-from collections import Counter
-import random
-from tqdm import tqdm
-
-def load_data(json_file):
+def subset_data(json_file, subset_size, seed=None):
+    """
+    Create a subset of the data from a JSON file with the specified size, ensuring an even distribution of classes.
+    Returns a subset DataFrame.
+    """
+    # Load data from JSON file
     with open(json_file, 'r') as f:
         data = json.load(f)
-    return data['labels']
+    labels = data['labels']
 
-def create_dataframe(data):
-    df = pd.DataFrame(data, columns=['file_path', 'label'])
-    return df
+    # Create DataFrame
+    df = pd.DataFrame(labels, columns=['file_path', 'label'])
 
-def subset_data(df, subset_size, seed=None):
     if seed:
         random.seed(seed)
 
@@ -110,29 +65,24 @@ def subset_data(df, subset_size, seed=None):
     subset_df = pd.concat(subsets, ignore_index=True)
     return subset_df
 
-def save_data(subset_df, output_file):
+def save_data(data_df, output_file):
+    """
+    Save the data DataFrame to a JSON file with the structure {'labels': [...]}
+    """
     data = {
-        "labels": subset_df.values.tolist()
+        "labels": data_df.values.tolist()
     }
     with open(output_file, 'w') as f:
         json.dump(data, f, indent=4)
 
-# Example usage
-subset_size = 4000
-seed_value = 42
-input_file = raw_data + "/dataset.json"
-# output_file = raw_data + "/dataset_subset.json"
-output_file = raw_data + f"/dataset_subset_size{subset_size}_seed{seed_value}.json"
+def print_class_distribution(data_df, name):
+    """
+    Print the class distribution in the provided DataFrame.
+    """
+    print(f"{name} data statistics:")
+    print(f"Total number of samples: {len(data_df)}")
+    print(data_df['label'].value_counts().sort_index())
 
-print(f"Loading data from {input_file}")
-data = load_data(input_file)
-df = create_dataframe(data)
 
-print(f"Subsetting data with size {subset_size} and seed {seed_value}")
-subset_df = subset_data(df, subset_size, seed=seed_value)
 
-print(f"Saving data to {output_file}")
-save_data(subset_df, output_file)
 
-print("Subset statistics:")
-print(subset_df['label'].value_counts().sort_index())
