@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-def run_stylegan_training(path_dataset, path_exp, path_home, snap=10):
+def run_stylegan_training(path_home, path_exp, path_dataset, snap=10):
     """
     Function to run the StyleGAN2-ADA training with the specified parameters.
 
@@ -14,10 +14,10 @@ def run_stylegan_training(path_dataset, path_exp, path_home, snap=10):
     Returns:
     - None
     """
-    
+    print(path_home)
     # Build the command for running StyleGAN training
     cmd = f"python {path_home}/stylegan2-ada-pytorch/train.py "\
-          f"--snap {snap} --outdir {path_exp} --data {path_dataset}"
+          f"--snap {snap} --cond=1 --outdir {path_exp} --data {path_dataset}"
     
     # Print the command (for debugging)
     print(f"Running command: {cmd}")
