@@ -42,7 +42,7 @@ def run_stylegan_training(path_home, path_exp, path_dataset, snap=10):
     """
     # Build the command for running StyleGAN training
     cmd = f"python {path_home}/stylegan2-ada-pytorch/train.py "\
-          f"--snap {snap} --cond=1 --outdir {path_exp} --data {path_dataset}"
+          f"--snap {snap} --cond=1 --outdir {path_exp} --data {path_dataset} --kimg=1000"
     
     print(f"Running command: {cmd}")
     
