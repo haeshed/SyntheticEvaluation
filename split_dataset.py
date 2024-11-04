@@ -6,6 +6,7 @@ from tqdm import tqdm
 import shutil
 import os
 import numpy as np
+import glob
 
 
 def split_train_test(json_file, train_ratio, seed=None):
@@ -13,7 +14,7 @@ def split_train_test(json_file, train_ratio, seed=None):
     Split the data from a JSON file into train and test sets based on the train_ratio.
     Returns train_df and test_df DataFrames.
     """
-    # Load data from JSON file
+    # Load data from JSON fileכה
     with open(json_file, 'r') as f:
         data = json.load(f)
     labels = data['labels']
@@ -56,11 +57,13 @@ def subset_data(json_file, subset_size, seed=None):
         random.seed(seed)
 
     class_counts = Counter(df['label'])
-
+    subset_size = int(subset_size / len(class_counts))
     subsets = []
     for class_id, count in tqdm(class_counts.items(), desc='Subsetting classes', unit='class'):
         class_df = df[df['label'] == class_id]
-        class_subset = class_df.sample(n=subset_size, replace=False, random_state=seed)
+        # class_subset = class_df.sample(n=subset_size, replace=False, random_state=seed)
+        # print('len(class_df), subset_size, len(class_counts): ', len(class_df), subset_size, len(class_counts))
+        class_subset = class_df.sample(n=min(count, subset_size), replace=False, random_state=seed)
         subsets.append(class_subset)
 
     subset_df = pd.concat(subsets, ignore_index=True)
@@ -177,3 +180,43 @@ def distribute_files_to_label_dirs(src_dir):
 
 
 
+def delete_images_and_dataset_dirs(parent_dir):
+    # Define the subdirectories and the file to move
+    subdirs_to_delete = ['images', 'dataset']
+    file_to_move = 'dataset.json'
+    
+    # Move the dataset.json file if it exists
+    images_dir = os.path.join(parent_dir, 'images')
+    file_path = os.path.join(images_dir, file_to_move)
+    
+    if os.path.exists(file_path):
+        # Move the file to the parent directory
+        shutil.move(file_path, os.path.join(parent_dir, file_to_move))
+        print(f"Moved: {file_path} to {parent_dir}")
+    else:
+        print(f"File does not exist: {file_path}")
+    
+    # Delete the specified subdirectories
+    for subdir in subdirs_to_delete:
+        dir_path = os.path.join(parent_dir, subdir)
+        if os.path.exists(dir_path) and os.path.isdir(dir_path):
+            shutil.rmtree(dir_path)  # Recursively delete the directory and its contents
+            print(f"Deleted: {dir_path}")
+        else:
+            print(f"Directory does not exist: {dir_path}")
+
+
+
+
+def get_latest_pkl_file(dir_path):
+    # Use glob to find all .pkl files in the directory and its subdirectories
+    pkl_files = glob.glob(os.path.join(dir_path, '**', '*.pkl'), recursive=True)
+    
+    if not pkl_files:
+        print("No .pkl files found.")
+        return None
+
+    # Get the most recent file based on the modification time
+    latest_file = max(pkl_files, key=os.path.getmtime)
+    
+    return latest_file
