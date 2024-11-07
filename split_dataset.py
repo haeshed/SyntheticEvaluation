@@ -4,8 +4,9 @@ from collections import Counter
 import random
 from tqdm import tqdm
 import shutil
-import os
 import numpy as np
+import os
+import glob
 
 
 def split_train_test(json_file, train_ratio, seed=None):
@@ -176,4 +177,11 @@ def distribute_files_to_label_dirs(src_dir):
                 print(f"Skipping file: {filename} (doesn't follow the expected naming convention)")
 
 
+def remove_all_files_in_dir(directory):
+    # Get all files in the directory (excluding subdirectories)
+    files = glob.glob(os.path.join(directory, '*')) + glob.glob(os.path.join(directory, '.*'))
 
+    for file in files:
+        # if os.path.isfile(file):  # Only delete files, not directories
+        print(f"Removing file: {file}")  # Optional: to show which files are being deleted
+        os.remove(file)
