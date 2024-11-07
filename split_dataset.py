@@ -4,7 +4,6 @@ from collections import Counter
 import random
 from tqdm import tqdm
 import shutil
-import os
 import numpy as np
 import glob
 import logging
