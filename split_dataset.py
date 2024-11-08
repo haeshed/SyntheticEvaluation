@@ -82,7 +82,7 @@ def copy_images_to_model_and_dataset(input_df, input_dir, output_dir):
         except Exception as e:
             logger.error(f"Error copying {src_path} to {dest_path}: {e}")
 
-def save_data(data_df, output_file):
+def save_json_dataset(data_df, output_file):
     logger.info(f"Saving data to {output_file}")
     
     data = {
