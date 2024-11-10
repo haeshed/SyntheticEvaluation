@@ -9,7 +9,6 @@ from tqdm import tqdm
 import torch.nn.functional as F
 from torch import nn
 from torchvision import datasets, transforms
-import torchvision.transforms
 from torch.utils.data import DataLoader, Subset
 from torchvision.datasets import ImageFolder # that can be applied on these datasets
 
@@ -19,12 +18,6 @@ from torchvision.datasets import ImageFolder # that can be applied on these data
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") # To use to cuda GPU
 # print(device)
 
-
-import torch
-from torch.utils.data import DataLoader, Subset
-from torchvision import transforms
-from torchvision.datasets import ImageFolder
-import numpy as np
 
 def create_dataloaders(train_dir, val_dir, batch_size=100, val_subset_size=5000, image_size=(32, 32)):
     """
@@ -54,9 +47,12 @@ def create_dataloaders(train_dir, val_dir, batch_size=100, val_subset_size=5000,
     training_dataset = ImageFolder(root=train_dir, transform=transform)
     validation_dataset = ImageFolder(root=val_dir, transform=transform)
 
-    # Subset the validation dataset if required
+    # Ensure val_subset_size does not exceed the size of the validation dataset
     val_dataset_size = len(validation_dataset)
-    if val_subset_size:
+    val_subset_size = min(val_subset_size, val_dataset_size)  # Cap the val_subset_size to the size of the validation dataset
+
+    # Subset the validation dataset if required
+    if val_subset_size > 0:
         subset_indices = np.random.choice(val_dataset_size, size=val_subset_size, replace=False)
         validation_subset_dataset = Subset(validation_dataset, subset_indices)
     else:
@@ -67,7 +63,6 @@ def create_dataloaders(train_dir, val_dir, batch_size=100, val_subset_size=5000,
     validation_loader = DataLoader(validation_subset_dataset, batch_size=batch_size, shuffle=True)
 
     return training_loader, validation_loader
-
 
 class LeNet(nn.Module):
     def __init__(self):
@@ -92,8 +87,6 @@ class LeNet(nn.Module):
         x = self.fc2(x)  # Fully connected layer 2 (output)
         return x
 
-
-import torch
 
 def train_and_evaluate(model, criterion, optimizer, training_loader, validation_loader, epochs=15, device='cpu'):
     """
