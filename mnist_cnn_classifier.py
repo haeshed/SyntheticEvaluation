@@ -193,49 +193,64 @@ def train_and_evaluate(model, criterion, optimizer, training_loader, validation_
 
 
 import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 def plot_training_vs_validation(running_loss_history, val_running_loss_history, 
-                                      plot_title='Training vs Validation Loss', 
-                                      xlabel='Epoch', ylabel='Loss', 
-                                      plot_size=(6, 4), save_path='training_vs_validation_loss.png'):
+                                running_acc_history, val_running_acc_history, 
+                                model_name, 
+                                plot_title='Training vs Validation', 
+                                xlabel='Epoch', ylabel='Value', 
+                                plot_size=(12, 6), save_path=None):
     """
-    Plot and save a comparison of training and validation loss over epochs.
+    Plot and save a comparison of training vs validation accuracy and loss over epochs, side by side.
+    Includes the model name in the plot title and filename.
 
     Parameters:
     - running_loss_history (list): List of training loss values for each epoch.
     - val_running_loss_history (list): List of validation loss values for each epoch.
-    - plot_title (str): Title of the plot (default is 'Training vs Validation Loss').
+    - running_acc_history (list): List of training accuracy values for each epoch.
+    - val_running_acc_history (list): List of validation accuracy values for each epoch.
+    - model_name (str): The name of the model to include in the plot title and filename.
+    - plot_title (str): Title of the plot (default is 'Training vs Validation').
     - xlabel (str): Label for the x-axis (default is 'Epoch').
-    - ylabel (str): Label for the y-axis (default is 'Loss').
-    - plot_size (tuple): Size of the plot (default is (6, 4)).
-    - save_path (str): Path where to save the plot image (default is 'training_vs_validation_loss.png').
+    - ylabel (str): Label for the y-axis (default is 'Value').
+    - plot_size (tuple): Size of the plot (default is (12, 6), width and height of the entire figure).
+    - save_path (str): Path where to save the plot image (default is None). If None, saves using the model name.
 
     Returns:
     - None (saves the plot to the specified path and displays it).
     """
-    # Create the plot
-    plt.figure(figsize=plot_size)
+    # Create a figure and two subplots (axes)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=plot_size)
 
-    # Plot training and validation loss with clear, distinguishable styles
-    plt.plot(running_loss_history, label='Training', color='b', linestyle='-', linewidth=2)
-    plt.plot(val_running_loss_history, label='Validation', color='r', linestyle='--', linewidth=2)
+    # Plot training and validation accuracy on the left plot (ax1)
+    ax1.plot(running_acc_history, label='Training Accuracy', color='b', linestyle='-', linewidth=2)
+    ax1.plot(val_running_acc_history, label='Validation Accuracy', color='r', linestyle='--', linewidth=2)
+    ax1.set_title(f'{model_name} - Accuracy', fontsize=16, fontweight='bold')
+    ax1.set_xlabel(xlabel, fontsize=14)
+    ax1.set_ylabel('Accuracy', fontsize=14)
+    ax1.grid(True, linestyle=':', linewidth=0.5)
+    ax1.legend(loc='upper left', fontsize=12, borderaxespad=0.1)
 
-    # Add title and axis labels
-    plt.title(plot_title, fontsize=16, fontweight='bold')
-    plt.xlabel(xlabel, fontsize=14)
-    plt.ylabel(ylabel, fontsize=14)
+    # Plot training and validation loss on the right plot (ax2)
+    ax2.plot(running_loss_history, label='Training Loss', color='b', linestyle='-', linewidth=2)
+    ax2.plot(val_running_loss_history, label='Validation Loss', color='r', linestyle='--', linewidth=2)
+    ax2.set_title(f'{model_name} - Loss', fontsize=16, fontweight='bold')
+    ax2.set_xlabel(xlabel, fontsize=14)
+    ax2.set_ylabel('Loss', fontsize=14)
+    ax2.grid(True, linestyle=':', linewidth=0.5)
+    ax2.legend(loc='upper right', fontsize=12, borderaxespad=0.1)
 
-    # Add a grid for better readability
-    plt.grid(True, linestyle=':', linewidth=0.5)
-
-    # Place the legend outside the plot for clarity
-    plt.legend(loc='upper right', fontsize=12, borderaxespad=0.1)
-
-    # Adjust the plot for better aesthetics
+    # Adjust the layout for better aesthetics
     plt.tight_layout()
+
+    # Set default save path if not provided
+    if save_path is None:
+        save_path = f'{model_name}_training_vs_validation.png'
 
     # Save the plot with high DPI for publications
     plt.savefig(save_path, dpi=300)
 
     # Display the plot
     plt.show()
+
